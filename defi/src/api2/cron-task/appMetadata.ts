@@ -111,6 +111,7 @@ async function _storeAppMetadata() {
     activeUsersData,
     feesData,
     revenueData,
+    holdersRevenueData,
     feeBribeRevenueData,
     feeTokenTaxData,
     volumeData,
@@ -144,6 +145,7 @@ async function _storeAppMetadata() {
     fetchJson(ACTIVE_USERS_API).catch(() => ({})),
     readRouteData('/dimensions/fees/df-lite').catch(() => ({ protocols: {} })),
     readRouteData('/dimensions/fees/dr-lite').catch(() => ({ protocols: {} })),
+    readRouteData('/dimensions/fees/dhr-lite').catch(() => ({ protocols: {} })),
     readRouteData('/dimensions/fees/dbr-lite').catch(() => ({ protocols: {} })),
     readRouteData('/dimensions/fees/dtt-lite').catch(() => ({ protocols: {} })),
     readRouteData('/dimensions/dexs/dv-lite').catch(() => ({ protocols: {} })),
@@ -181,6 +183,13 @@ async function _storeAppMetadata() {
         dailyRevenue: 'total24h',
         revenue30d: 'total30d',
         allTimeRevenue: 'totalAllTime',
+      }
+    },
+    {
+      mapKey: 'holdersRevenue', data: holdersRevenueData, finalDataKeys: {
+        dailyHoldersRevenue: 'total24h',
+        holdersRevenue30d: 'total30d',
+        allTimeHoldersRevenue: 'totalAllTime',
       }
     },
     {
@@ -566,6 +575,8 @@ async function _storeAppMetadata() {
     }
 
     for (const protocol of revenueData.protocols) {
+      if (!protocol.totalAllTime) continue; // skip if this totalAllTime field is missing
+
       finalProtocols[protocol.defillamaId] = {
         ...finalProtocols[protocol.defillamaId],
         revenue: true
@@ -575,6 +586,22 @@ async function _storeAppMetadata() {
         finalProtocols[protocol.parentProtocol] = {
           ...finalProtocols[protocol.parentProtocol],
           revenue: true
+        }
+      }
+    }
+
+    for (const protocol of holdersRevenueData.protocols) {
+      if (!protocol.totalAllTime) continue; // skip if this totalAllTime field is missing
+      
+      finalProtocols[protocol.defillamaId] = {
+        ...finalProtocols[protocol.defillamaId],
+        holdersRevenue: true
+      }
+
+      if (protocol.parentProtocol) {
+        finalProtocols[protocol.parentProtocol] = {
+          ...finalProtocols[protocol.parentProtocol],
+          holdersRevenue: true
         }
       }
     }

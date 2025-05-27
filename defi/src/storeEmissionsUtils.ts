@@ -8,6 +8,8 @@ import { storeR2JSONString, getR2 } from "./utils/r2";
 import protocols from "./protocols/data";
 import { sluggifyString } from "./utils/sluggify";
 import parentProtocols from "./protocols/parentProtocols";
+import { getDisplayChainName } from "./adaptors/utils/getAllChainsFromAdaptors";
+import { protocolsIncentives } from "../emissions-adapters/no-emissions/incentives";
 
 const prefix = "coingecko:";
 
@@ -64,6 +66,7 @@ async function aggregateMetadata(
   const documentedSectionAllocation = createSectionData(documentedChart);
 
   const futures = pData && "symbol" in pData ? await createFuturesData(pData.symbol) : undefined;
+  const chainName = getDisplayChainName(rawData.metadata?.chain ?? "");
 
   let documentedData;
   let realTimeData;
@@ -102,7 +105,9 @@ async function aggregateMetadata(
       futures,
       defillamaIds,
       categories: rawData.categories,
-      protocolCategory
+      protocolCategory,
+      chainName,
+      pId
     },
     id,
   };
@@ -110,6 +115,12 @@ async function aggregateMetadata(
 
 async function getPricedUnlockChart(emissionData: Awaited<ReturnType<typeof aggregateMetadata>>["data"]) {
   try {
+    const hasIncentives = emissionData.pId ? protocolsIncentives.includes(emissionData.pId) : false;
+    
+    if (!hasIncentives) {
+      return [];
+    }
+    
     const incentiveCtegories = ["farming"];
 
     const currDate = new Date().getTime() / 1000;
@@ -119,13 +130,13 @@ async function getPricedUnlockChart(emissionData: Awaited<ReturnType<typeof aggr
     const now = new Date().getTime() / 1000;
 
     emissionData.documentedData.data.forEach(
-      (chart: { data: Array<{ timestamp: number; unlocked: number }>; label: string }) => {
+      (chart: { data: Array<{ timestamp: number; rawEmission: number }>; label: string }) => {
         if (!incentiveCtegoriesNames?.includes(chart.label)) return;
         chart.data
           .filter((val) => val.timestamp < currDate)
           .forEach((val) => {
             if (val.timestamp < now)
-              unlocksByTimestamp[val.timestamp] = (unlocksByTimestamp[val.timestamp] || 0) + val.unlocked;
+              unlocksByTimestamp[val.timestamp] = (unlocksByTimestamp[val.timestamp] || 0) + val.rawEmission;
           });
       },
       {}
@@ -202,6 +213,7 @@ export async function processSingleProtocol(
     defillamaId: data.defillamaIds[0] || "",
     linked: data.defillamaIds.length > 1 ? data.defillamaIds.slice(1) : [],
     category: data.protocolCategory,
+    chain: data.chainName,
     emission24h: sum(day),
     emission7d: sum(week),
     emission30d: sum(month),

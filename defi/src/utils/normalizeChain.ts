@@ -35,7 +35,7 @@ export function normalizeChain(chain: string) {
 
 
 export function isDoubleCounted(moduleDoubleCounted?: boolean, category?: string) {
-  return moduleDoubleCounted === true || ["Yield Aggregator", "Yield", "Liquidity manager", "Onchain Capital Allocator", "Treasury Manager", "Anchor BTC"].includes(category ?? "none");
+  return moduleDoubleCounted === true || ["Yield Aggregator", "Yield", "Liquidity manager", "Onchain Capital Allocator", "Risk Curators", "Treasury Manager", "Anchor BTC"].includes(category ?? "none");
 }
 
 export const nonChains = ['PK', 'SK', 'tvl', 'tvlPrev1Hour', 'tvlPrev1Day', 'tvlPrev1Week']
@@ -1412,6 +1412,10 @@ export const chainCoingeckoIds = {
     symbol: "ECH",
     cmcId: "20047",
     categories: ["EVM", "Cosmos"],
+    parent: {
+      chain: "Initia", 
+      types: ["L2"]
+    }
   },
   "MultiVAC": {
     geckoId: "multivac",
@@ -2931,6 +2935,7 @@ export const chainCoingeckoIds = {
     cmcId: "28508",
     twitter: "NibiruChain",
     url: "https://nibiru.fi",
+    chainId: 6900,
   },
   "BSquared": {
     geckoId: null,
@@ -4230,6 +4235,16 @@ export const chainCoingeckoIds = {
     github: ['xpherechain'],
     twitter: "SuperseedXYZ",
     url: "https://x-phere.com/"
+  },
+  "Lens": {
+    geckoId: null,
+    symbol: "-",
+    cmcId: null,
+    categories: ["EVM"],
+    chainId: 232,
+    github: ['lens-protocol'],
+    twitter: "LC",
+    url: "https://lens.xyz/"
   },
 } as unknown as ChainCoinGekcoIds
 

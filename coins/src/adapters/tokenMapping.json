@@ -333,6 +333,11 @@
     }
   },
   "nibiru": {
+    "0x0000000000000000000000000000000000000000": {
+      "decimals": "18",
+      "symbol": "NIBI",
+      "to": "coingecko#nibiru"
+    },
     "unibi": {
       "decimals": "6",
       "symbol": "NIBI",
@@ -347,23 +352,51 @@
       "decimals": "6",
       "symbol": "xNIBI",
       "to": "coingecko#astrovault-xnibi"
-    }
-  },
-  "cataclysm_1": {
-    "unibi": {
-      "decimals": "6",
-      "symbol": "NIBI",
-      "to": "coingecko#nibiru"
     },
     "0x0CaCF669f8446BeCA826913a3c6B96aCD4b02a97": {
       "decimals": "18",
       "symbol": "WNIBI",
       "to": "coingecko#nibiru"
     },
+    "0xcA0a9Fb5FBF692fa12fD13c0A900EC56Bb3f0a7b": {
+      "decimals": "6",
+      "symbol": "stNIBI",
+      "to": "coingecko#nibiru"
+    },
+    "tf:nibi1udqqx30cw8nwjxtl4l28ym9hhrp933zlq8dqxfjzcdhvl8y24zcqpzmh8m:ampNIBI": {
+      "decimals": "6",
+      "symbol": "stNIBI.nibi",
+      "to": "coingecko#nibiru"
+    },
+    "0x0829F361A05D993d5CEb035cA6DF3446b060970b": {
+      "decimals": "6",
+      "symbol": "USDC",
+      "to": "coingecko#usd-coin"
+    },
     "0x08EBA8ff53c6ee5d37A90eD4b5239f2F85e7B291": {
       "decimals": "18",
       "symbol": "USDC.arb",
       "to": "coingecko#usd-coin"
+    },
+    "0x43F2376D5D03553aE72F4A8093bbe9de4336EB08": {
+      "decimals": "6",
+      "symbol": "USDT",
+      "to": "coingecko#tether"
+    },
+    "0xcdA5b77E2E2268D9E09c874c1b9A4c3F07b37555": {
+      "decimals": "18",
+      "symbol": "WETH",
+      "to": "coingecko#ethereum"
+    },
+    "0x7168634Dd1ee48b1C5cC32b27fD8Fc84E12D00E6": {
+      "decimals": "6",
+      "symbol": "AXV",
+      "to": "coingecko#astrovault"
+    },
+    "0x1429B38e58b97de646ACd65fdb8a4502c2131484": {
+      "decimals": "18",
+      "symbol": "WNIBI.omni",
+      "to": "coingecko#nibiru"
     }
   },
   "tron": {
@@ -1387,6 +1420,11 @@
     }
   },
   "goat": {
+    "0xaFB068838136358CFa6B54BEa580B86DF70BBA7f": {
+      "decimals": "18",
+      "symbol": "esBTC",
+      "to": "coingecko#bitcoin"
+    },
     "0x0000000000000000000000000000000000000000": {
       "decimals": "18",
       "symbol": "WBTC",
@@ -2768,6 +2806,16 @@
     }
   },
   "ibc": {
+    "B0BEE773CEF718E8B6D2892A27D57FEFB00BD8B2E698367B5CC96A4F36148726": {
+      "decimals": "6",
+      "symbol": "BABY",
+      "to": "coingecko#babylon"
+    },
+    "37A3FB4FED4CA04ED6D9E5DA36C6D27248645F0E22F585576A1488B8A89C5A50": {
+      "decimals": "6",
+      "symbol": "INIT",
+      "to": "coingecko#initia"
+    },
     "F082B65C88E4B6D5EF1DB243CDA1D331D002759E938A0F5CD3FFDC5D53B3E349": {
       "decimals": "6",
       "symbol": "USDC",
@@ -7112,6 +7160,26 @@
       "to": "coingecko#liquid-crypto",
       "decimals": 18,
       "symbol": "LQDX"
+    },
+    "0x8C4aCd74Ff4385f3B7911432FA6787Aa14406f8B": {
+      "to": "coingecko#tether",
+      "decimals": 6,
+      "symbol": "USDT"
+    },
+    "0x8201c02d4ab2214471e8c3ad6475c8b0cd9f2d06": {
+      "to": "coingecko#usdc",
+      "decimals": 6,
+      "symbol": "USDC.e"
+    },
+    "0x5501a36b1313ac5d27e85418acd2aa4564f50b44": {
+      "to": "coingecko#wrapped-bitcoin",
+      "decimals": 8,
+      "symbol": "WBTC"
+    },
+    "0x0Fa205c0446cD9EeDCc7538c9E24BC55AD08207f": {
+      "to": "coingecko#ethereum",
+      "decimals": 18,
+      "symbol": "WETH"
     }
   },
   "shido": {
@@ -8085,6 +8153,11 @@
     }
   },
   "hyperliquid": {
+    "0xE6829d9a7eE3040e1276Fa75293Bde931859e8fA": {
+      "to": "coingecko#mantle-restaked-eth",
+      "decimals": 18,
+      "symbol": "cmETH"
+    },
     "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb": {
       "to": "coingecko#tether",
       "decimals": 6,
@@ -8127,6 +8200,11 @@
     }
   },
   "hemi": {
+    "0xaFB068838136358CFa6B54BEa580B86DF70BBA7f": {
+      "to": "coingecko#bitcoin",
+      "decimals": 18,
+      "symbol": "esBTC"
+    },
     "0x623F2774d9f27B59bc6b954544487532CE79d9DF": {
       "to": "coingecko#bitcoin",
       "decimals": 8,
@@ -8465,6 +8543,11 @@
       "decimals": 6,
       "symbol": "nTBILL"
     },
+    "0xe9e8330a71912F03E54E7D93795acD9a56f070Aa": {
+      "to": "coingecko#paypal-usd",
+      "decimals": 6,
+      "symbol": "PayUSD"
+    },
     "0x39d1F90eF89C52dDA276194E9a832b484ee45574": {
       "to": "coingecko#dinero-staked-eth",
       "decimals": 18,
@@ -8545,7 +8628,7 @@
       "symbol": "wXP"
     }
   },
-    "xsat": {
+  "xsat": {
     "0xaFB068838136358CFa6B54BEa580B86DF70BBA7f": {
       "to": "coingecko#bitcoin",
       "decimals": 18,

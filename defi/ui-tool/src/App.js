@@ -6,9 +6,11 @@ import {
   Tabs,
   Table,
 } from 'antd';
-import { PlayCircleOutlined, ClearOutlined, MoonOutlined, SaveOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, ClearOutlined, MoonOutlined, SaveOutlined, LineChartOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
 
 import './App.css';
+import { Line } from '@ant-design/plots';
 
 const { Content, } = Layout;
 const { Text } = Typography;
@@ -37,9 +39,10 @@ const App = () => {
   const [dimRefillWaitingRecords, setDimRefillWaitingRecords] = useState([]);
   const [waitingRecordsShowChainColumns, setWaitingRecordsShowChainColumns] = useState(false);
   const [waitingRecordsDeletableIds, setWaitingRecordsDeletableIds] = useState([]);
+  const [waitingRecordsShowChart, setWaitingRecordsShowChart] = useState(true);
+  const [waitingRecordsSelectedChartColumn, setWaitingRecordsSelectedChartColumn] = useState('');
 
-  // WebSocket connection
-  useEffect(() => {
+  function addWebSocketConnection() {
     const ws = new WebSocket('ws://localhost:8080');
     wsRef.current = ws;
 
@@ -51,6 +54,7 @@ const App = () => {
     ws.onclose = () => {
       setIsConnected(false);
       console.log('WebSocket disconnected');
+      setTimeout(addWebSocketConnection, 1000); // Reconnect after 1 second
     };
 
     ws.onmessage = (event) => {
@@ -81,7 +85,35 @@ const App = () => {
     return () => {
       ws.close();
     };
-  }, []);
+
+  }
+
+  // WebSocket connection
+  useEffect(addWebSocketConnection, []);
+
+  // Key for localStorage
+  const DIMENSIONS_FORM_STORAGE_KEY = 'dimensionRefillFormValues';
+
+  // Load form values from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(DIMENSIONS_FORM_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        console.log('Loaded saved form values:', parsed);
+        parsed.dateRange  = parsed.dateRange.map(dayjs)
+        dimensionRefillForm.setFieldsValue(parsed);
+        // If adapterType exists, update protocols
+        if (parsed.adapterType) {
+          setDimensionRefillProtocols(formOptions.dimensionFormChoices.adapterTypeChoices[parsed.adapterType] || []);
+        }
+      } catch (e) {
+        console.error('Failed to parse saved form values:', e);
+        // Ignore parse errors
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formOptions]);
 
   const clearOutput = () => {
     setOutput('');
@@ -165,83 +197,90 @@ const App = () => {
       }
     };
 
-    return (<Form
-      form={dimensionRefillForm}
-      layout="vertical"
-      onFinish={handleSubmit}
-      initialValues={{
-        parallelCount: 3,
-        onlyMissing: false,
-        dryRun: false
-      }}
-      style={{ 'max-width': '400px' }}
-    >
-      <Form.Item
-        label="Adapter Type"
-        name="adapterType"
-        rules={[{ required: true, message: 'Please select adapter type' }]}
-      >
-        <Select placeholder="Select adapter type" onChange={handleAdapterTypeChange}>
-          {adapterTypes.map(type => (
-            <Option key={type} value={type}>{type}</Option>
-          ))}
-        </Select>
-      </Form.Item>
 
-      <Form.Item
-        label="Protocol"
-        name="protocol"
-        rules={[{ required: true, message: 'Please select protocol' }]}
+    // Save form values to localStorage on change
+    const handleFormChange = (_, allValues) => {
+      localStorage.setItem(DIMENSIONS_FORM_STORAGE_KEY, JSON.stringify(allValues));
+    };
+
+    return (
+      <Form
+        form={dimensionRefillForm}
+        layout="vertical"
+        onFinish={handleSubmit}
+        onValuesChange={handleFormChange}
+        initialValues={{
+          parallelCount: 3,
+          onlyMissing: false,
+          dryRun: false
+        }}
+        style={{ 'max-width': '400px' }}
       >
-        <Select
-          showSearch
-          placeholder="Select protocol"
-          optionFilterProp="children"
-          filterOption={(input, option) =>
-            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-          }
+        <Form.Item
+          label="Adapter Type"
+          name="adapterType"
+          rules={[{ required: true, message: 'Please select adapter type' }]}
         >
-          {dimensionRefillProtocols.map(protocol => (
-            <Option key={protocol} value={protocol}>{protocol}</Option>
-          ))}
-        </Select>
-      </Form.Item>
+          <Select placeholder="Select adapter type" onChange={handleAdapterTypeChange}>
+            {adapterTypes.map(type => (
+              <Option key={type} value={type}>{type}</Option>
+            ))}
+          </Select>
+        </Form.Item>
 
-      <Form.Item
-        label="Only Missing"
-        name="onlyMissing"
-        valuePropName="checked"
-      >
-        <Switch checkedChildren="Yes" unCheckedChildren="No" />
-      </Form.Item>
+        <Form.Item
+          label="Protocol"
+          name="protocol"
+          rules={[{ required: true, message: 'Please select protocol' }]}
+        >
+          <Select
+            showSearch
+            placeholder="Select protocol"
+            optionFilterProp="children"
+            filterOption={(input, option) =>
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+          >
+            {dimensionRefillProtocols.map(protocol => (
+              <Option key={protocol} value={protocol}>{protocol}</Option>
+            ))}
+          </Select>
+        </Form.Item>
 
+        <Form.Item
+          label="Only Missing"
+          name="onlyMissing"
+          valuePropName="checked"
+        >
+          <Switch checkedChildren="Yes" unCheckedChildren="No" />
+        </Form.Item>
 
-      <Form.Item
-        label="Date Range"
-        name="dateRange"
-        rules={[
-          ({ getFieldValue }) => ({
-            validator(_, value) {
-              if (getFieldValue('onlyMissing') || (value && value.length === 2)) {
-                return Promise.resolve();
-              }
-              return Promise.reject(new Error('Please select a valid date range'));
-            },
-          }),
-        ]}
-      >
-        <DatePicker.RangePicker />
-      </Form.Item>
+        <Form.Item
+          label="Date Range"
+          name="dateRange"
+          rules={[
+            ({ getFieldValue }) => ({
+              validator(_, value) {
+                if (getFieldValue('onlyMissing') || (value && value.length === 2)) {
+                  return Promise.resolve();
+                }
+                return Promise.reject(new Error('Please select a valid date range'));
+              },
+            }),
+          ]}
+        >
+          <DatePicker.RangePicker />
+        </Form.Item>
 
-      <Form.Item
-        label="Parallel Count"
-        name="parallelCount"
-        rules={[{ required: true, message: 'Please enter parallel count' }]}
-      >
-        <InputNumber min={1} max={100} />
-      </Form.Item>
+        <Form.Item
+          label="Parallel Count"
+          name="parallelCount"
+          rules={[{ required: true, message: 'Please enter parallel count' }]}
+        >
+          <InputNumber min={1} max={100} />
+        </Form.Item>
 
-      {/*       <Form.Item
+        {/*       <Form.Item
         label="Dry Run"
         name="dryRun"
         valuePropName="checked"
@@ -257,25 +296,42 @@ const App = () => {
         <Switch checkedChildren="Yes" unCheckedChildren="No" />
       </Form.Item> */}
 
-      <Form.Item>
-        <Button
-          type="primary"
-          htmlType="submit"
-          icon={<PlayCircleOutlined />}
-          disabled={!isConnected}
-        >
-          Run
-        </Button>
-        <Button
-          style={{ marginLeft: 10 }}
-          icon={<ClearOutlined />}
-          onClick={clearOutput}
-        >
-          Clear Output
-        </Button>
-        {!isConnected && <Text type="danger" style={{ marginLeft: 10 }}>WebSocket disconnected</Text>}
-      </Form.Item>
-    </Form>)
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            icon={<PlayCircleOutlined />}
+            disabled={!isConnected}
+          >
+            Run
+          </Button>
+          <Button
+            style={{ marginLeft: 10 }}
+            icon={<ClearOutlined />}
+            onClick={clearOutput}
+          >
+            Clear Output
+          </Button>
+          {!isConnected && <Text type="danger" style={{ marginLeft: 10 }}>WebSocket disconnected</Text>}
+        </Form.Item>
+      </Form>
+    )
+  }
+
+  function printChartData(data, columnField) {
+    if (!columnField) return null;
+    data = [...data]
+    data.sort((a, b) => new Date(a.timeS) - new Date(b.timeS))
+    data = data.filter(i => i.hasOwnProperty(columnField))
+    const config = {
+      data,
+      xField: (d) => new Date(d.timeS),
+      yField: columnField,
+      colorField: 'protocolName',
+      height: 300,
+      connectNulls: { connect: false },
+    }
+    return <Line {...config} />
   }
 
   function getWaitingRecordsTable() {
@@ -284,11 +340,15 @@ const App = () => {
     const colSet = new Set(['id', 'adapterType'])
     const stringColSet = new Set(['id', 'adapterType', 'protocolName', 'timeS'])
     const columns = []
+    const chartColumnsSet = new Set([])
     dimRefillWaitingRecords.forEach(record => {
       Object.keys(record).forEach(key => {
         if (colSet.has(key)) return;
+        if (key.startsWith('_')) {
+          if (key.startsWith('_d') && key.lastIndexOf('_') === 0) chartColumnsSet.add(key);
+          return;
+        }
         if (!waitingRecordsShowChainColumns && key.includes('_')) return;
-        if (key.startsWith('_')) return;
         const column = { title: key, dataIndex: key, key, }
         if (stringColSet.has(key))
           column.sorter = (a, b) => a[key].localeCompare(b[key]);
@@ -298,6 +358,21 @@ const App = () => {
         colSet.add(key);
       });
     });
+    const chartColumns = Array.from(chartColumnsSet)
+    let selectChartElement = null;
+    let chartColumnSelected = waitingRecordsSelectedChartColumn ? waitingRecordsSelectedChartColumn : chartColumns[0];
+
+    if (chartColumns.length > 1 && waitingRecordsShowChart) {
+      selectChartElement = <Select
+        defaultValue={waitingRecordsSelectedChartColumn ? waitingRecordsSelectedChartColumn : chartColumnSelected}
+        style={{ width: 200 }}
+        onChange={setWaitingRecordsSelectedChartColumn}
+      >
+        {chartColumns.map((column) => (
+          <Option key={column} value={column}>{column}</Option>
+        ))}
+      </Select>
+    }
 
     return (
       <div>
@@ -342,6 +417,15 @@ const App = () => {
             </Button>
 
 
+            <Button
+              type="default"
+              icon={< LineChartOutlined />}
+              onClick={() => setWaitingRecordsShowChart(!waitingRecordsShowChart)}
+            >
+              {waitingRecordsShowChart ? 'Hide Chart' : 'Show Chart'}
+            </Button>
+
+            {selectChartElement}
 
 
             <Switch
@@ -353,11 +437,12 @@ const App = () => {
           </div>
         </div>
 
+        {waitingRecordsShowChart && printChartData(dimRefillWaitingRecords, chartColumnSelected)}
 
         <Table
           columns={columns}
           dataSource={dimRefillWaitingRecords}
-          pagination={{ pageSize: 50 }}
+          pagination={{ pageSize: 5000 }}
           rowKey={(record) => record.id}
           rowSelection={{
             type: 'checkbox',

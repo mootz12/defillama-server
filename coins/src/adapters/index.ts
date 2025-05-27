@@ -36,7 +36,8 @@ export default {
   optimBonds: require("./other/optimBonds"),
   tangleswap: require("./markets/tangleswap"),
   xexchange: require("./markets/xexchange"),
-  cetus: require("./markets/cetus"),
+  // cetus: require("./markets/cetus"),
+  aftermath: require("./markets/aftermath"),
   balanced: require("./markets/balanced"),
   tinyman: require("./markets/tinyman"),
   ston: require("./markets/ston"),
@@ -149,4 +150,5 @@ export default {
   xlpt: require("./markets/xlpt"),
   sundaeswapV3: require("./markets/sundaeswapv3"),
   tempest: require("./yield/tempest"),
+  momentum: require("./markets/momentum"),
 };

@@ -6,6 +6,7 @@ import {
   canonicalBridgeIds,
   chainsWithoutCanonicalBridges,
   excludedTvlId,
+  fetchNotifsSent,
   geckoSymbols,
   protocolBridgeIds,
   zero,
@@ -58,9 +59,11 @@ export default async function fetchBridgeUsdTokenTvls(
     } else allProtocolsTemp[id] = tokenBalances[i];
   });
 
-  failedDeps.map((dep: string) => (errorString = `${errorString} ${dep},`));
+  const notifs = fetchNotifsSent();
 
-  process.env.CHAIN_ASSET_WEBHOOK && errorString.length > 30
+  [...new Set(failedDeps)].map((dep: string) => (errorString = `${errorString} ${dep},`));
+
+  process.env.CHAIN_ASSET_WEBHOOK && errorString.length > 30 && notifs > 1
     ? await sendMessage(errorString, process.env.CHAIN_ASSET_WEBHOOK!)
     : console.log(errorString);
 

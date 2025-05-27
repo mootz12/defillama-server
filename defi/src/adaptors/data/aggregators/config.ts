@@ -68,6 +68,11 @@ export default {
   },
   "1inch-agg": {
     id: "189",
+    cleanRecordsConfig: {
+      genuineSpikes: {
+        "1747699200": true,
+      },
+    },
   },
   "zrx": {
     id: "4628",
@@ -336,4 +341,7 @@ export default {
   "bungee-dex": {
     id: "6187"
   },
+  "lifi": {
+    id: "6233"
+  }
 } as AdaptorsConfig;
